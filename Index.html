@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeSpeed - Modern Typing Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+Pro:wght@400;600&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #164e63;
+            --card: #ecfeff;
+            --card-foreground: #475569;
+            --primary: #164e63;
+            --primary-foreground: #ffffff;
+            --secondary: #84cc16;
+            --accent: #84cc16;
+            --destructive: #ff5252;
+            --border: #d1d5db;
+            --input: #ecfeff;
+            --muted: #f0fdf4;
+            --muted-foreground: #374151;
+            --radius: 0.5rem;
+            --gold: #ffd700;
+            --royal-blue: #4169e1;
+            --royal-purple: #663399;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* <CHANGE> Added offline page styles with royal theme */
+        .offline-page {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--royal-blue) 0%, var(--royal-purple) 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .offline-page.show {
+            display: flex;
+        }
+
+        .offline-crown {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            color: var(--gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .offline-title {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .offline-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .offline-message {
+            max-width: 600px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+        }
+
+        .offline-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin-bottom: 3rem;
+        }
+
+        .offline-feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .offline-feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--gold);
+        }
+
+        .offline-feature-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gold);
+        }
+
+        .offline-retry-btn {
+            background: var(--gold);
+            color: var(--royal-blue);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .offline-retry-btn:hover {
+            background: #ffed4e;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.online {
+            background: var(--accent);
+            color: white;
+        }
+
+        .connection-status.offline {
+            background: var(--destructive);
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: var(--muted-foreground);
+        }
+
+        /* <CHANGE> Added user info form styles */
+        .user-info-form {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--input);
+            color: var(--foreground);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* <CHANGE> Added certificate styles with royal design */
+        .test-container {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--background);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .text-display {
+            font-size: 1.5rem;
+            line-height: 2;
+            padding: 2rem;
+            background: var(--background);
+            border-radius: var(--radius);
+            border: 2px solid var(--border);
+            margin-bottom: 1rem;
+            font-family: 'Source Sans Pro', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        .char {
+            position: relative;
+        }
+
+        .char.correct {
+            background-color: var(--accent);
+            color: var(--primary-foreground);
+        }
+
+        .char.incorrect {
+            background-color: var(--destructive);
+            color: var(--primary-foreground);
+        }
+
+        .char.current {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .input-area {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--input);
+            color: var(--foreground);
+            font-family: 'Source Sans Pro', sans-serif;
+            outline: none;
+            transition: border-color 0.2s ease;
+            resize: none;
+            min-height: 120px;
+        }
+
+        .input-area:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0f3a47;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 78, 99, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--primary-foreground);
+        }
+
+        .btn-secondary:hover {
+            background: #65a30d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(132, 204, 22, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            display: none;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: var(--background);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border: 2px solid var(--border);
+            text-align: center;
+        }
+
+        .result-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ... existing code ... */
+
+        .certificate {
+            display: none;
+            background: white;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 3rem;
+            border: 8px solid var(--gold);
+            border-radius: var(--radius);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .certificate.show {
+            display: block;
+        }
+
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.1) 50%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .certificate-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--royal-blue);
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .certificate-subtitle {
+            font-size: 1.2rem;
+            color: var(--royal-purple);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .certificate-body {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .certificate-text {
+            font-size: 1.2rem;
+            color: var(--foreground);
+            margin-bottom: 1rem;
+        }
+
+        .certificate-name {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--royal-blue);
+            margin: 1rem 0;
+            text-decoration: underline;
+            text-decoration-color: var(--gold);
+        }
+
+        .certificate-achievement {
+            font-size: 1.3rem;
+            color: var(--foreground);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .certificate-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .certificate-stat {
+            text-align: center;
+            padding: 1rem;
+            background: var(--muted);
+            border-radius: var(--radius);
+            border: 2px solid var(--gold);
+        }
+
+        .certificate-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--royal-blue);
+            display: block;
+        }
+
+        .certificate-stat-label {
+            font-size: 0.9rem;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .certificate-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .certificate-date {
+            text-align: left;
+        }
+
+        .certificate-signature {
+            text-align: right;
+        }
+
+        .certificate-date-label,
+        .certificate-signature-label {
+            font-size: 0.9rem;
+            color: var(--muted-foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        .certificate-date-value,
+        .certificate-signature-value {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: var(--royal-blue);
+            border-top: 2px solid var(--border);
+            padding-top: 0.5rem;
+        }
+
+        .certificate-barcode {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .certificate-barcode-label {
+            font-size: 0.8rem;
+            color: var(--muted-foreground);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .certificate-controls {
+            text-align: center;
+            margin-top: 2rem;
+            gap: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .certificate {
+                margin: 1rem;
+                padding: 2rem;
+            }
+
+            .certificate-title {
+                font-size: 1.8rem;
+            }
+
+            .certificate-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .certificate-footer {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            /* <CHANGE> Added responsive styles for offline page */
+            .offline-title {
+                font-size: 2rem;
+            }
+
+            .offline-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- <CHANGE> Added connection status indicator -->
+    <div class="connection-status" id="connectionStatus">
+        <span id="statusText">Checking connection...</span>
+    </div>
+
+    <!-- <CHANGE> Added offline page with royal design -->
+    <div class="offline-page" id="offlinePage">
+        <div class="offline-crown">👑</div>
+        <h1 class="offline-title">Royal Typing Test</h1>
+        <p class="offline-subtitle">Connection to the Kingdom Required</p>
+        
+        <div class="offline-message">
+            <p>Your Majesty, it appears you have lost connection to our royal servers. The TypeSpeed kingdom requires an active internet connection to access our premium typing test experience and generate your official certificates.</p>
+        </div>
+
+        <div class="offline-features">
+            <div class="offline-feature">
+                <div class="offline-feature-icon">⚡</div>
+                <div class="offline-feature-title">Real-time Analytics</div>
+                <p>Live WPM tracking and accuracy monitoring</p>
+            </div>
+            <div class="offline-feature">
+                <div class="offline-feature-icon">🏆</div>
+                <div class="offline-feature-title">Royal Certificates</div>
+                <p>Professional certificates with verification barcodes</p>
+            </div>
+            <div class="offline-feature">
+                <div class="offline-feature-icon">📊</div>
+                <div class="offline-feature-title">Performance Insights</div>
+                <p>Detailed statistics and skill level assessment</p>
+            </div>
+        </div>
+
+        <button class="offline-retry-btn" onclick="checkConnection()">
+            Reconnect to Kingdom
+        </button>
+    </div>
+
+    <!-- <CHANGE> Main app content wrapped in online container -->
+    <div id="onlineContent">
+        <div class="container">
+            <header class="header">
+                <h1>TypeSpeed</h1>
+                <p>Test your typing speed and accuracy</p>
+            </header>
+
+            <div class="user-info-form" id="userInfoForm">
+                <h2 style="text-align: center; margin-bottom: 2rem; font-family: 'Playfair Display', serif; color: var(--primary);">Enter Your Information</h2>
+                <form id="userForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="organization">Organization/School</label>
+                            <input type="text" id="organization" name="organization">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <select id="age" name="age">
+                                <option value="">Select Age Range</option>
+                                <option value="Under 18">Under 18</option>
+                                <option value="18-25">18-25</option>
+                                <option value="26-35">26-35</option>
+                                <option value="36-45">36-45</option>
+                                <option value="46-55">46-55</option>
+                                <option value="Over 55">Over 55</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="experience">Typing Experience</label>
+                            <select id="experience" name="experience">
+                                <option value="">Select Experience Level</option>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                                <option value="Expert">Expert</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button type="submit" class="btn btn-primary">Proceed to Test</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="test-container" id="testContainer" style="display: none;">
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-value" id="wpm">0</span>
+                        <span class="stat-label">WPM</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="accuracy">100</span>
+                        <span class="stat-label">Accuracy %</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="timer">60</span>
+                        <span class="stat-label">Time Left</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="errors">0</span>
+                        <span class="stat-label">Errors</span>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+
+                <div class="text-display" id="textDisplay"></div>
+                
+                <textarea 
+                    class="input-area" 
+                    id="textInput" 
+                    placeholder="Click 'Start Test' to begin typing..."
+                    disabled
+                ></textarea>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="startBtn">Start Test</button>
+                    <button class="btn btn-secondary" id="resetBtn">Reset</button>
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Test Complete!</h2>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <span class="result-value" id="finalWpm">0</span>
+                        <div class="result-label">Words Per Minute</div>
+                    </div>
+                    <div class="result-card">
+                        <span class="result-value" id="finalAccuracy">0</span>
+                        <div class="result-label">Accuracy</div>
+                    </div>
+                    <div class="result-card">
+                        <span class="result-value" id="finalErrors">0</span>
+                        <div class="result-label">Total Errors</div>
+                    </div>
+                    <div class="result-card">
+                        <span class="result-value" id="finalChars">0</span>
+                        <div class="result-label">Characters Typed</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="showCertificate()">Generate Certificate</button>
+                    <button class="btn btn-secondary" onclick="resetTest()">Try Again</button>
+                </div>
+            </div>
+
+            <div class="certificate" id="certificate">
+                <div class="certificate-header">
+                    <div class="certificate-title">CERTIFICATE OF ACHIEVEMENT</div>
+                    <div class="certificate-subtitle">Typing Proficiency Test</div>
+                </div>
+                
+                <div class="certificate-body">
+                    <div class="certificate-text">This is to certify that</div>
+                    <div class="certificate-name" id="certificateName"></div>
+                    <div class="certificate-achievement" id="certificateAchievement"></div>
+                    
+                    <div class="certificate-stats">
+                        <div class="certificate-stat">
+                            <span class="certificate-stat-value" id="certWpm">0</span>
+                            <div class="certificate-stat-label">Words Per Minute</div>
+                        </div>
+                        <div class="certificate-stat">
+                            <span class="certificate-stat-value" id="certAccuracy">0</span>
+                            <div class="certificate-stat-label">Accuracy</div>
+                        </div>
+                        <div class="certificate-stat">
+                            <span class="certificate-stat-value" id="certLevel">Beginner</span>
+                            <div class="certificate-stat-label">Skill Level</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="certificate-footer">
+                    <div class="certificate-date">
+                        <div class="certificate-date-label">Date of Achievement</div>
+                        <div class="certificate-date-value" id="certificateDate"></div>
+                    </div>
+                    <div class="certificate-signature">
+                        <div class="certificate-signature-label">Certified by</div>
+                        <div class="certificate-signature-value">TypeSpeed Academy</div>
+                    </div>
+                </div>
+                
+                <div class="certificate-barcode">
+                    <div class="certificate-barcode-label">Verification Code</div>
+                    <svg id="barcode"></svg>
+                </div>
+                
+                <div class="certificate-controls">
+                    <button class="btn btn-primary" onclick="printCertificate()">Print Certificate</button>
+                    <button class="btn btn-secondary" onclick="hideCertificate()">Back to Results</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // <CHANGE> Added online/offline detection and management
+        let isOnline = navigator.onLine;
+        let userData = {};
+
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('statusText');
+            const offlinePage = document.getElementById('offlinePage');
+            const onlineContent = document.getElementById('onlineContent');
+            
+            if (navigator.onLine) {
+                statusElement.className = 'connection-status online';
+                statusText.textContent = '🟢 Online';
+                offlinePage.classList.remove('show');
+                onlineContent.style.display = 'block';
+                isOnline = true;
+            } else {
+                statusElement.className = 'connection-status offline';
+                statusText.textContent = '🔴 Offline';
+                offlinePage.classList.add('show');
+                onlineContent.style.display = 'none';
+                isOnline = false;
+                
+                // Stop any active test
+                if (typingTest && typingTest.isTestActive) {
+                    typingTest.endTest();
+                }
+            }
+        }
+
+        function checkConnection() {
+            updateConnectionStatus();
+            if (!navigator.onLine) {
+                // Show a brief message that connection is still unavailable
+                const retryBtn = document.querySelector('.offline-retry-btn');
+                const originalText = retryBtn.textContent;
+                retryBtn.textContent = 'Still Offline...';
+                retryBtn.disabled = true;
+                
+                setTimeout(() => {
+                    retryBtn.textContent = originalText;
+                    retryBtn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Check connection status on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateConnectionStatus();
+            
+            // Hide status indicator after 3 seconds if online
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    document.getElementById('connectionStatus').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('connectionStatus').style.display = 'none';
+                    }, 300);
+                }
+            }, 3000);
+        });
+
+        // <CHANGE> Modified TypingTest class to check online status
+        class TypingTest {
+            constructor() {
+                this.testTexts = [
+                    "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the alphabet and is commonly used for typing practice. It helps improve finger dexterity and keyboard familiarity while maintaining readability and flow.",
+                    "Technology has revolutionized the way we communicate, work, and live our daily lives. From smartphones to artificial intelligence, these innovations continue to shape our future in ways we never imagined possible.",
+                    "Reading books expands our knowledge, improves vocabulary, and enhances critical thinking skills. Whether fiction or non-fiction, each book offers unique perspectives and insights that contribute to personal growth and understanding.",
+                    "Climate change represents one of the most significant challenges facing humanity today. Rising temperatures, melting ice caps, and extreme weather patterns require immediate action and global cooperation to address effectively.",
+                    "The art of cooking combines creativity, science, and tradition to create memorable dining experiences. Understanding ingredients, techniques, and flavors allows chefs to craft dishes that delight the senses and bring people together."
+                ];
+                
+                this.currentText = '';
+                this.currentIndex = 0;
+                this.startTime = null;
+                this.endTime = null;
+                this.timer = null;
+                this.timeLeft = 60;
+                this.isTestActive = false;
+                this.errors = 0;
+                this.totalChars = 0;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.loadNewText();
+            }
+            
+            initializeElements() {
+                this.textDisplay = document.getElementById('textDisplay');
+                this.textInput = document.getElementById('textInput');
+                this.startBtn = document.getElementById('startBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.wpmDisplay = document.getElementById('wpm');
+                this.accuracyDisplay = document.getElementById('accuracy');
+                this.timerDisplay = document.getElementById('timer');
+                this.errorsDisplay = document.getElementById('errors');
+                this.progressBar = document.getElementById('progress');
+                this.results = document.getElementById('results');
+            }
+            
+            setupEventListeners() {
+                this.startBtn.addEventListener('click', () => this.startTest());
+                this.resetBtn.addEventListener('click', () => this.resetTest());
+                this.textInput.addEventListener('input', (e) => this.handleInput(e));
+                this.textInput.addEventListener('paste', (e) => e.preventDefault());
+            }
+            
+            loadNewText() {
+                const randomIndex = Math.floor(Math.random() * this.testTexts.length);
+                this.currentText = this.testTexts[randomIndex];
+                this.displayText();
+            }
+            
+            displayText() {
+                this.textDisplay.innerHTML = this.currentText
+                    .split('')
+                    .map((char, index) => `<span class="char" data-index="${index}">${char}</span>`)
+                    .join('');
+            }
+            
+            startTest() {
+                // <CHANGE> Check online status before starting test
+                if (!navigator.onLine) {
+                    alert('Internet connection required to start the test!');
+                    updateConnectionStatus();
+                    return;
+                }
+                
+                this.isTestActive = true;
+                this.startTime = new Date().getTime();
+                this.textInput.disabled = false;
+                this.textInput.placeholder = "Start typing here...";
+                this.textInput.focus();
+                this.startBtn.textContent = 'Test in Progress...';
+                this.startBtn.disabled = true;
+                this.results.classList.remove('show');
+                
+                this.timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.timerDisplay.textContent = this.timeLeft;
+                    
+                    if (this.timeLeft <= 0) {
+                        this.endTest();
+                    }
+                }, 1000);
+            }
+
+            // ... existing code ...
+
+            handleInput(e) {
+                if (!this.isTestActive) return;
+                
+                const inputText = e.target.value;
+                const inputLength = inputText.length;
+                
+                this.currentIndex = inputLength;
+                this.totalChars = inputLength;
+                
+                document.querySelectorAll('.char').forEach(char => {
+                    char.classList.remove('correct', 'incorrect', 'current');
+                });
+                
+                this.errors = 0;
+                for (let i = 0; i < inputLength; i++) {
+                    const char = document.querySelector(`[data-index="${i}"]`);
+                    if (char) {
+                        if (inputText[i] === this.currentText[i]) {
+                            char.classList.add('correct');
+                        } else {
+                            char.classList.add('incorrect');
+                            this.errors++;
+                        }
+                    }
+                }
+                
+                if (inputLength < this.currentText.length) {
+                    const currentChar = document.querySelector(`[data-index="${inputLength}"]`);
+                    if (currentChar) {
+                        currentChar.classList.add('current');
+                    }
+                }
+                
+                this.updateStats();
+                
+                if (inputLength >= this.currentText.length) {
+                    this.endTest();
+                }
+            }
+            
+            updateStats() {
+                const timeElapsed = (new Date().getTime() - this.startTime) / 1000 / 60;
+                const wordsTyped = this.totalChars / 5;
+                const wpm = Math.round(wordsTyped / timeElapsed) || 0;
+                const accuracy = this.totalChars > 0 ? Math.round(((this.totalChars - this.errors) / this.totalChars) * 100) : 100;
+                const progress = (this.currentIndex / this.currentText.length) * 100;
+                
+                this.wpmDisplay.textContent = wpm;
+                this.accuracyDisplay.textContent = accuracy;
+                this.errorsDisplay.textContent = this.errors;
+                this.progressBar.style.width = `${progress}%`;
+            }
+            
+            endTest() {
+                this.isTestActive = false;
+                this.endTime = new Date().getTime();
+                clearInterval(this.timer);
+                
+                this.textInput.disabled = true;
+                this.startBtn.textContent = 'Start Test';
+                this.startBtn.disabled = false;
+                
+                this.showResults();
+            }
+            
+            showResults() {
+                const timeElapsed = (this.endTime - this.startTime) / 1000 / 60;
+                const wordsTyped = this.totalChars / 5;
+                const wpm = Math.round(wordsTyped / timeElapsed) || 0;
+                const accuracy = this.totalChars > 0 ? Math.round(((this.totalChars - this.errors) / this.totalChars) * 100) : 100;
+                
+                document.getElementById('finalWpm').textContent = wpm;
+                document.getElementById('finalAccuracy').textContent = accuracy + '%';
+                document.getElementById('finalErrors').textContent = this.errors;
+                document.getElementById('finalChars').textContent = this.totalChars;
+                
+                this.results.classList.add('show');
+            }
+            
+            resetTest() {
+                this.isTestActive = false;
+                this.currentIndex = 0;
+                this.startTime = null;
+                this.endTime = null;
+                this.timeLeft = 60;
+                this.errors = 0;
+                this.totalChars = 0;
+                
+                clearInterval(this.timer);
+                
+                this.textInput.value = '';
+                this.textInput.disabled = true;
+                this.textInput.placeholder = "Click 'Start Test' to begin typing...";
+                this.startBtn.textContent = 'Start Test';
+                this.startBtn.disabled = false;
+                
+                this.wpmDisplay.textContent = '0';
+                this.accuracyDisplay.textContent = '100';
+                this.timerDisplay.textContent = '60';
+                this.errorsDisplay.textContent = '0';
+                this.progressBar.style.width = '0%';
+                
+                this.results.classList.remove('show');
+                this.loadNewText();
+            }
+        }
+
+        // ... existing code ...
+
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // <CHANGE> Check online status before proceeding
+            if (!navigator.onLine) {
+                alert('Internet connection required to proceed!');
+                updateConnectionStatus();
+                return;
+            }
+            
+            userData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                organization: document.getElementById('organization').value || 'Not specified',
+                age: document.getElementById('age').value || 'Not specified',
+                experience: document.getElementById('experience').value || 'Not specified'
+            };
+            
+            document.getElementById('userInfoForm').style.display = 'none';
+            document.getElementById('testContainer').style.display = 'block';
+        });
+
+        function showCertificate() {
+            // <CHANGE> Check online status before generating certificate
+            if (!navigator.onLine) {
+                alert('Internet connection required to generate certificate!');
+                updateConnectionStatus();
+                return;
+            }
+            
+            const finalWpm = document.getElementById('finalWpm').textContent;
+            const finalAccuracy = document.getElementById('finalAccuracy').textContent;
+            
+            let skillLevel = 'Beginner';
+            const wpmValue = parseInt(finalWpm);
+            if (wpmValue >= 70) skillLevel = 'Expert';
+            else if (wpmValue >= 50) skillLevel = 'Advanced';
+            else if (wpmValue >= 30) skillLevel = 'Intermediate';
+            
+            document.getElementById('certificateName').textContent = `${userData.firstName} ${userData.lastName}`;
+            document.getElementById('certificateAchievement').textContent = 
+                `has successfully completed the TypeSpeed typing proficiency test with exceptional performance, demonstrating ${skillLevel.toLowerCase()} level typing skills and achieving remarkable accuracy in keyboarding proficiency.`;
+            document.getElementById('certWpm').textContent = finalWpm;
+            document.getElementById('certAccuracy').textContent = finalAccuracy;
+            document.getElementById('certLevel').textContent = skillLevel;
+            document.getElementById('certificateDate').textContent = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const barcodeData = `${userData.firstName}${userData.lastName}${finalWpm}${finalAccuracy}${new Date().getTime()}`;
+            JsBarcode("#barcode", barcodeData, {
+                format: "CODE128",
+                width: 2,
+                height: 50,
+                displayValue: true,
+                fontSize: 12,
+                margin: 10
+            });
+            
+            document.getElementById('certificate').classList.add('show');
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function hideCertificate() {
+            document.getElementById('certificate').classList.remove('show');
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function printCertificate() {
+            window.print();
+        }
+        
+        function resetTest() {
+            typingTest.resetTest();
+            document.getElementById('certificate').classList.remove('show');
+        }
+        
+        let typingTest;
+        document.addEventListener('DOMContentLoaded', () => {
+            typingTest = new TypingTest();
+        });
+    </script>
+</body>
+</html>
