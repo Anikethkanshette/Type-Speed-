@@ -111,6 +111,6 @@ index.html
 Licensed under MIT License – free to use & modify.
 
 
----
 
-<h3 align="center">✨ Developed with ❤️ by <a href="https://github.com/Anikethkanshette">Anikethkanshette</a> ✨</h3>
+## Developed with ❤️
+by Aniketh Malkarjun Kanshette 
