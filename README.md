@@ -65,7 +65,6 @@ index.html
 
 .
 ├── index.html     # Main app (HTML, CSS, JS included)
-├── assets/        # Images, certificate previews
 └── README.md      # Documentation
 
 
